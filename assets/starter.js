@@ -132,13 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------------
 
     profileForm.addEventListener("submit", (event) => {
-        event.preventDefault() // stop send form
-
-        // validation
-        if (validateProfileForm()) {
-            // save info in localStorage.
-            saveProfile();
-        }
+        handleProfileSave(event);
     });
 
     // ------------------------------------
@@ -284,11 +278,13 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Event} e - Form submit event
      */
     const handleProfileSave = (e) => {
-        // TODO: Implement profile save logic
-        // 1. Prevent default form submission
-        // 2. Validate form
-        // 3. Save profile data
-        // 4. Update filters if needed
+        e.preventDefault() // stop send form
+
+        // validation
+        if (validateProfileForm()) {
+            // save info in localStorage.
+            saveProfile();
+        }
     };
 
     /**
