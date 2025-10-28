@@ -234,8 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
         userProfile.email = profileEmailInput.value;
 
         localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(userProfile));
-
-        alert("Save profile successfully");
     };
 
     /**
@@ -264,6 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
                    </li>`
             );
         });
+
+        let btnRemoveSkill = document.getElementsByClassName("profile-skill-remove");
+        for (let btn of btnRemoveSkill) {
+            btn.addEventListener("click", (e) => {
+                handleSkillRemove(e);
+            })
+        }
     };
 
     /**
@@ -317,11 +322,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Event} e - Click event
      */
     const handleSkillRemove = (e) => {
-        // TODO: Implement skill removal
-        // 1. Find clicked remove button
-        // 2. Get skill name
-        // 3. Remove from profile
-        // 4. Re-render and apply filters
+        const skill = e.target.parentElement.dataset.skill;
+        userProfile.skills.splice(userProfile.skills.indexOf(skill), 1);
+        e.target.parentElement.remove();
+        saveProfile();
     };
 
     // ------------------------------------
