@@ -135,6 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
         handleProfileSave(event);
     });
 
+    skillInput.addEventListener("keypress", (e) => {
+        handleSkillAdd(e);
+    })
+
     // ------------------------------------
     // --- FORM VALIDATION ---
     // ------------------------------------
@@ -228,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
         userProfile.name = profileNameInput.value;
         userProfile.position = profilePositionInput.value;
         userProfile.email = profileEmailInput.value;
-        // TODO: Implement profile skills saving
 
         localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(userProfile));
 
@@ -252,12 +255,15 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function renderProfileSkills
      */
     const renderProfileSkills = () => {
-        // TODO: Implement skills rendering
-        // Use this HTML template for each skill:
-        // `<li class="profile-skill-tag" data-skill="${skill}">
-        //     <span>${skill}</span>
-        //     <button class="profile-skill-remove" aria-label="Remove skill ${skill}">✕</button>
-        //  </li>`
+        profileSkillsList.innerHTML = ""; // empty content of html
+        userProfile.skills.map((skill) => {
+            profileSkillsList.insertAdjacentHTML("beforeend",
+            `<li class="profile-skill-tag" data-skill="${skill}">
+                        <span>${skill}</span>
+                        <button class="profile-skill-remove" aria-label="Remove skill ${skill}" type="button">✕</button>
+                   </li>`
+            );
+        });
     };
 
     /**
@@ -268,8 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         profileNameInput.value = userProfile.name;
         profilePositionInput.value = userProfile.position;
         profileEmailInput.value = userProfile.email;
-
-        // TODO: Implement skills profile loading
+        renderProfileSkills();
     };
 
     /**
@@ -293,11 +298,17 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {KeyboardEvent} e - Keydown event
      */
     const handleSkillAdd = (e) => {
-        // TODO: Implement skill addition on Enter key
-        // 1. Check if Enter key was pressed
-        // 2. Get skill value
-        // 3. Add to profile if not duplicate
-        // 4. Re-render skills and apply filters
+        if (e.key === "Enter") {
+            e.preventDefault();
+            const skillValue = e.target.value;
+            if (!isEmpty(skillValue)) {
+                if (!userProfile.skills.find((skill) => skill === skillValue)) {
+                    userProfile.skills.push(skillValue);
+                    renderProfileSkills();
+                    e.target.value = "";
+                }
+            }
+        }
     };
 
     /**
