@@ -250,12 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (user) {
             userProfile = user;
-
-            profileNameInput.value = userProfile.name;
-            profilePositionInput.value = userProfile.position;
-            profileEmailInput.value = userProfile.email;
-
-            // TODO: Implement skills profile loading
         }
     };
 
@@ -277,7 +271,11 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function renderProfileForm
      */
     const renderProfileForm = () => {
-        // TODO: Populate form fields with saved profile data
+        profileNameInput.value = userProfile.name;
+        profilePositionInput.value = userProfile.position;
+        profileEmailInput.value = userProfile.email;
+
+        // TODO: Implement skills profile loading
     };
 
     /**
