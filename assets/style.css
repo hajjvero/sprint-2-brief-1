@@ -174,8 +174,6 @@ textarea {
     position: absolute;
     bottom: 0;
     left: 0;
-    /* Caché par défaut */
-    display: none; 
 }
 input:invalid, textarea:invalid {
     /* Supprime le contour rouge par défaut */

@@ -1,3 +1,5 @@
+import {isEmpty, isEmail} from "./validation/validation.js";
+
 /**
  * Job Listings Application - Starter Code
  * 
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let manualFilters = [];
     
     /** @type {Object} User profile data */
-    let userProfile = { name: '', position: '', skills: [] };
+    let userProfile = { name: '', position: '', email: '', skills: [] };
     
     /** @type {Array} Array of favorite job IDs */
     let favoriteJobIds = [];
@@ -49,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements - Profile
     const profileForm = document.getElementById('profile-form');
     const profileNameInput = document.getElementById('profile-name');
+    const profileEmailInput = document.getElementById('profile-email');
     const profilePositionInput = document.getElementById('profile-position');
     const skillInput = document.getElementById('skill-input');
     const profileSkillsList = document.getElementById('profile-skills-list');
@@ -125,6 +128,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ------------------------------------
+    // --- FORM Events ---
+    // ------------------------------------
+
+    profileForm.addEventListener("submit", (event) => {
+        event.preventDefault() // stop send form
+
+        // validation
+        if (validateProfileForm()) {
+            // save info in localStorage.
+            saveProfile();
+        }
+    });
+
+    // ------------------------------------
     // --- FORM VALIDATION ---
     // ------------------------------------
 
@@ -135,10 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} message - Error message to display
      */
     const showError = (input, message) => {
-        // TODO: Implement error display logic
-        // 1. Add error class to input
-        // 2. Find error span element
-        // 3. Display error message
+        const errorElement = document.createElement('span'); // crete span element
+        errorElement.setAttribute("class", "form-error");// add class form-error
+        errorElement.setAttribute("aria-live", "polite"); // add attr aria-live
+        errorElement.innerText = message; // set text of message
+        input.before(errorElement); // append span element after
+        input.classList.add("has-error"); // add error class to input
     };
 
     /**
@@ -147,9 +166,16 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLElement} form - The form element
      */
     const clearErrors = (form) => {
-        // TODO: Implement error clearing logic
-        // 1. Remove error classes from inputs
-        // 2. Clear error messages
+        const inputs = form.querySelectorAll("input[class='has-error']");
+        const errorMessages = form.querySelectorAll("span.form-error");
+
+        inputs.forEach((input) => {
+            input.classList.remove('has-error')
+        });
+
+        errorMessages.forEach((element) => {
+            element.remove();
+        })
     };
 
     /**
@@ -158,11 +184,29 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {boolean} True if valid, false otherwise
      */
     const validateProfileForm = () => {
-        // TODO: Implement profile form validation
-        // 1. Check required fields
-        // 2. Show errors if invalid
-        // 3. Return validation result
-        return true;
+        let isValid = true;
+        clearErrors(profileForm);
+
+        if (isEmpty(profileNameInput.value)) {
+            showError(profileNameInput, "this name filed is require");
+            isValid = false;
+        }
+
+        if (isEmpty(profileEmailInput.value)) {
+            showError(profileEmailInput, "this email filed is require");
+            isValid = false;
+        }
+        else if (!isEmail(profileEmailInput.value)) {
+            showError(profileEmailInput, "this email not valid");
+            isValid = false;
+        }
+
+        if (isEmpty(profilePositionInput.value)) {
+            showError(profilePositionInput, "this poste filed is require");
+            isValid = false;
+        }
+
+        return isValid;
     };
 
     /**
