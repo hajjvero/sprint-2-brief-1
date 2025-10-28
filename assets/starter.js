@@ -231,7 +231,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function saveProfile
      */
     const saveProfile = () => {
-        // TODO: Implement profile saving
+        userProfile.name = profileNameInput.value;
+        userProfile.position = profilePositionInput.value;
+        userProfile.email = profileEmailInput.value;
+        // TODO: Implement profile skills saving
+
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(userProfile));
+
+        alert("Save profile successfully");
     };
 
     /**
@@ -239,7 +246,17 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function loadProfile
      */
     const loadProfile = () => {
-        // TODO: Implement profile loading
+        let user = JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY));
+
+        if (user) {
+            userProfile = user;
+
+            profileNameInput.value = userProfile.name;
+            profilePositionInput.value = userProfile.position;
+            profileEmailInput.value = userProfile.email;
+
+            // TODO: Implement skills profile loading
+        }
     };
 
     /**
