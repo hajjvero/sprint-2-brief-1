@@ -112,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('./assets/data/data.json');
             if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
             allJobs = await response.json();
+            manualFilters = allJobs;
             saveAllJobs();
         } catch (error) {
             console.error("Error loading data.json:", error);
@@ -255,12 +256,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderProfileSkills = () => {
         profileSkillsList.innerHTML = ""; // empty content of html
         userProfile.skills.map((skill) => {
-            profileSkillsList.insertAdjacentHTML("beforeend",
-            `<li class="profile-skill-tag" data-skill="${skill}">
+            profileSkillsList.innerHTML += `<li class="profile-skill-tag" data-skill="${skill}">
                         <span>${skill}</span>
                         <button class="profile-skill-remove" aria-label="Remove skill ${skill}" type="button">✕</button>
-                   </li>`
-            );
+                   </li>`;
         });
 
         let btnRemoveSkill = document.getElementsByClassName("profile-skill-remove");
@@ -608,21 +607,53 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FILTERING & SEARCH ---
     // ------------------------------------
 
+    const displayStateJobs = () => {
+        statsCounter.innerHTML = `
+             <p><span>${manualFilters.length}</span> offers trouvées sur ${allJobs.length}.</p>
+        `;
+    }
     /**
      * Applies all active filters and updates display
      * @function applyAllFilters
      */
     const applyAllFilters = () => {
-        // TODO: Implement comprehensive filtering
-        // 1. Get search term
-        // 2. Combine profile skills and manual filters
-        // 3. Filter jobs by tags and search term
-        // 4. Update all UI components
+        searchInput.addEventListener("input", function () {
+            const searchJob = searchInput.value.toLowerCase();
+            manualFilters = [];
+
+            const searchSkills = (skills) => {
+                for (let j = 0; j < skills.length; j++) {
+                    if (skills[j].toLowerCase().includes(searchJob)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            for (let i = 0; i < allJobs.length; i++) {
+                if (
+                    allJobs[i].company.toLowerCase().includes(searchJob) ||
+                    allJobs[i].position.toLowerCase().includes(searchJob) ||
+                    allJobs[i].location.toLowerCase().includes(searchJob) ||
+                    allJobs[i].role.toLowerCase().includes(searchJob) ||
+                    allJobs[i].contract.toLowerCase().includes(searchJob) ||
+                    searchSkills(allJobs[i].skills)
+                ) {
+                    manualFilters.push(allJobs[i]);
+                }
+            }
+
+            renderJobs(manualFilters);
+            displayStateJobs();
+        })
     };
 
     // ------------------------------------
     // --- EVENT HANDLERS ---
     // ------------------------------------
+    clearFiltersBtn.addEventListener("click", function () {
+        handleClearFilters();
+    })
 
     /**
      * Handles clicks on job listings
@@ -651,10 +682,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function handleClearFilters
      */
     const handleClearFilters = () => {
-        // TODO: Implement filter clearing
-        // 1. Clear manual filters array
-        // 2. Clear search input
-        // 3. Apply filters
+        searchInput.value = "";
+        manualFilters = allJobs;
+        renderJobs(allJobs);
+        displayStateJobs();
     };
 
     // ------------------------------------
@@ -697,6 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Initial job display
         renderJobs(allJobs);
+        displayStateJobs();
         
         // TODO: Add remaining event listeners
         // Profile events
