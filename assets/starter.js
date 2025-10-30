@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function saveFavorites
      */
     const saveFavorites = () => {
-        // TODO: Implement favorites saving
+        localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favoriteJobIds));
     };
 
     /**
@@ -344,7 +344,11 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function loadFavorites
      */
     const loadFavorites = () => {
-        // TODO: Implement favorites loading
+        const list = localStorage.getItem(FAVORITES_STORAGE_KEY);
+        if (list) {
+            favoriteJobIds = JSON.parse(list);
+        }
+        renderFavoriteJobs();
     };
 
     /**
@@ -352,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function renderFavoritesCount
      */
     const renderFavoritesCount = () => {
-        // TODO: Update favorites count in tab
+        favoritesCount.innerText = `(${favoriteJobIds.length})`;
     };
 
     /**
@@ -360,10 +364,32 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function renderFavoriteJobs
      */
     const renderFavoriteJobs = () => {
-        // TODO: Implement favorites rendering
-        // 1. Filter jobs by favorite IDs
-        // 2. Use createJobCardHTML for each job
-        // 3. Show empty message if no favorites
+        let contentHtml = "";
+        if (favoriteJobIds.length === 0) {
+            favoriteJobsContainer.innerHTML = '<p class="job-listings__empty">No jobs favorite found.</p>';
+        } else {
+            for (let i  = 0; i < favoriteJobIds.length; i++) {
+                const objectJob = allJobs.find((item) => item.id === favoriteJobIds[i]);
+                if (objectJob) {
+                    contentHtml += createJobCardHTML(objectJob);
+                }
+            }
+
+            favoriteJobsContainer.innerHTML = contentHtml;
+        }
+
+        renderJobs(allJobs);
+        renderFavoritesCount();
+        saveFavorites();
+
+        const btnFavorites = document.getElementsByClassName("job-card__favorite-btn");
+        for (let i  = 0; i < btnFavorites.length; i++) {
+            btnFavorites[i].addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idJob = Number(e.target.getAttribute("data-job-id"));
+                toggleFavorite(idJob);
+            })
+        }
     };
 
     /**
@@ -372,11 +398,19 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} jobId - Job ID to toggle
      */
     const toggleFavorite = (jobId) => {
-        // TODO: Implement favorite toggle
-        // 1. Check if job is already favorite
-        // 2. Add or remove from favorites array
-        // 3. Save to localStorage
-        // 4. Update UI
+        // search
+        const indexOfJob = favoriteJobIds.indexOf(jobId);
+
+        // find job
+        if (indexOfJob !== -1) {
+            // Remove job
+            favoriteJobIds.splice(indexOfJob,1);
+       } else {
+            // Add job
+            favoriteJobIds.push(jobId);
+        }
+
+        renderFavoriteJobs();
     };
 
     // ------------------------------------
@@ -577,6 +611,14 @@ document.addEventListener('DOMContentLoaded', () => {
         jobListingsContainer.innerHTML = jobsToRender.length > 0
             ? jobsToRender.map(createJobCardHTML).join('')
             : '<p class="job-listings__empty">No jobs match your search.</p>';
+
+        // event click on article of job
+        for (let article of document.getElementsByClassName("job-card")) {
+            article.addEventListener("click", (e) => {
+                const jobId = article.getAttribute("data-job-id");
+                openViewModal(+jobId);
+            });
+        }
     };
 
     /**
@@ -707,7 +749,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Load data
         loadProfile();
-        loadFavorites();
         await loadAllJobs();
 
         // Render initial UI
@@ -727,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addNewJobBtn.addEventListener('click', () => openManageModal());
         
         // Initial job display
-        renderJobs(allJobs);
+        loadFavorites();
         displayStateJobs();
         
         // TODO: Add remaining event listeners
