@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearFiltersBtn = document.getElementById('clear-filters');
     const searchInput = document.getElementById('search-input');
     const statsCounter = document.getElementById('stats-counter');
-    const filterBar = document.getElementById('filter-bar');
+    const filterBar = document.getElementById('search-input');
 
     // DOM Elements - Profile
     const profileForm = document.getElementById('profile-form');
@@ -310,6 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     userProfile.skills.push(skillValue);
                     renderProfileSkills();
                     e.target.value = "";
+
+                    applyAllFilters();
                 }
             }
         }
@@ -325,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userProfile.skills.splice(userProfile.skills.indexOf(skill), 1);
         e.target.parentElement.remove();
         saveProfile();
+        //TODO: update jobs filter
     };
 
     // ------------------------------------
@@ -641,53 +644,59 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} totalCount - Total number of jobs
      */
     const renderStats = (matchCount, totalCount) => {
-        // TODO: Implement stats rendering
-        // Show different messages based on active filters
+        statsCounter.innerHTML = `
+             <p><span>${matchCount}</span> offers trouvées sur ${totalCount}.</p>
+        `;
     };
 
     // ------------------------------------
     // --- FILTERING & SEARCH ---
     // ------------------------------------
 
-    const displayStateJobs = () => {
-        statsCounter.innerHTML = `
-             <p><span>${manualFilters.length}</span> offers trouvées sur ${allJobs.length}.</p>
-        `;
+    const resetFilteredJobList = () => {
+        manualFilters = [];
+        for (let skill of userProfile.skills) {
+            for (let job of allJobs) {
+                for (let jobSkill of job.skills) {
+                    if (jobSkill.toLowerCase().includes(skill.toLowerCase())) {
+                        manualFilters.push(job);
+                    }
+                }
+            }
+        }
     }
     /**
      * Applies all active filters and updates display
      * @function applyAllFilters
      */
     const applyAllFilters = () => {
-        searchInput.addEventListener("input", function () {
-            const searchJob = searchInput.value.toLowerCase();
-            manualFilters = [];
+        const searchJob = searchInput.value.toLowerCase();
+        resetFilteredJobList();
 
-            const searchSkills = (skills) => {
-                for (let j = 0; j < skills.length; j++) {
-                    if (skills[j].toLowerCase().includes(searchJob)) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-
-            for (let i = 0; i < allJobs.length; i++) {
-                if (
-                    allJobs[i].company.toLowerCase().includes(searchJob) ||
-                    allJobs[i].position.toLowerCase().includes(searchJob) ||
-                    allJobs[i].location.toLowerCase().includes(searchJob) ||
-                    allJobs[i].role.toLowerCase().includes(searchJob) ||
-                    allJobs[i].contract.toLowerCase().includes(searchJob) ||
-                    searchSkills(allJobs[i].skills)
-                ) {
-                    manualFilters.push(allJobs[i]);
+        const searchSkills = (skills) => {
+            for (let j = 0; j < skills.length; j++) {
+                if (skills[j].toLowerCase().includes(searchJob)) {
+                    return true;
                 }
             }
+            return false;
+        };
 
-            renderJobs(manualFilters);
-            displayStateJobs();
-        })
+        for (let i = 0; i < allJobs.length; i++) {
+            if (
+                allJobs[i].company.toLowerCase().includes(searchJob) ||
+                allJobs[i].position.toLowerCase().includes(searchJob) ||
+                allJobs[i].location.toLowerCase().includes(searchJob) ||
+                allJobs[i].role.toLowerCase().includes(searchJob) ||
+                allJobs[i].contract.toLowerCase().includes(searchJob) ||
+                searchSkills(allJobs[i].skills)
+            ) {
+                manualFilters.push(allJobs[i]);
+            }
+        }
+
+        renderJobs(manualFilters);
+        renderStats(manualFilters.length, allJobs.length);
     };
 
     // ------------------------------------
@@ -725,9 +734,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const handleClearFilters = () => {
         searchInput.value = "";
-        manualFilters = allJobs;
-        renderJobs(allJobs);
-        displayStateJobs();
+        applyAllFilters();
     };
 
     // ------------------------------------
@@ -769,12 +776,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Initial job display
         loadFavorites();
-        displayStateJobs();
         
         // TODO: Add remaining event listeners
         // Profile events
         // Filter events  
         // Job list events
+
+        searchInput.addEventListener("input", applyAllFilters)
     };
 
     // Start the application
