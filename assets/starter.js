@@ -102,21 +102,20 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Promise<void>}
      */
     const loadAllJobs = async () => {
-        // TODO: Implement data loading logic
-        // 1. Check if jobs exist in localStorage
-        // 2. If not, fetch from data.json
-        // 3. Save to localStorage for persistence
-        // 4. Handle errors appropriately
-        
-        try {
-            const response = await fetch('./assets/data/data.json');
-            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-            allJobs = await response.json();
-            manualFilters = allJobs;
-            saveAllJobs();
-        } catch (error) {
-            console.error("Error loading data.json:", error);
-            jobListingsContainer.innerHTML = '<p class="job-listings__empty">Error loading job data.</p>';
+        const  localJobs = localStorage.getItem(ALL_JOBS_KEY);
+        if (localJobs) {
+            allJobs = JSON.parse(localJobs);
+        } else {
+            try {
+                const response = await fetch('./assets/data/data.json');
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                allJobs = await response.json();
+                manualFilters = allJobs;
+                saveAllJobs();
+            } catch (error) {
+                console.error("Error loading data.json:", error);
+                jobListingsContainer.innerHTML = '<p class="job-listings__empty">Error loading job data.</p>';
+            }
         }
     };
 
@@ -125,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function saveAllJobs
      */
     const saveAllJobs = () => {
-        // TODO: Implement localStorage save functionality
+        localStorage.setItem(ALL_JOBS_KEY, JSON.stringify(allJobs));
     };
 
     // ------------------------------------
