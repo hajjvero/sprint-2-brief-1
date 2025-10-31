@@ -523,19 +523,37 @@ document.addEventListener('DOMContentLoaded', () => {
      * @function renderManageList
      */
     const renderManageList = () => {
-        // TODO: Implement manage list rendering
-        // Use this HTML template for each job:
-        // `<li class="manage-job-item" data-job-id="${job.id}">
-        //     <img src="${job.logo}" alt="" class="job-card__logo" style="position: static; width: 48px; height: 48px; border-radius: 5px;">
-        //     <div class="manage-job-item__info">
-        //         <h4>${job.position}</h4>
-        //         <p>${job.company} - ${job.location}</p>
-        //     </div>
-        //     <div class="manage-job-item__actions">
-        //         <button class="btn btn--secondary btn-edit">Edit</button>
-        //         <button class="btn btn--danger btn-delete">Delete</button>
-        //     </div>
-        //  </li>`
+        manageJobsList.innerHTML = allJobs.map((job) => {
+            return `
+            <li class="manage-job-item" data-job-id="${job.id}">
+                <img src="${job.logo}" alt="" class="job-card__logo" style="position: static; width: 48px; height: 48px; border-radius: 5px;">
+                <div class="manage-job-item__info">
+                    <h4>${job.position}</h4>
+                    <p>${job.company} - ${job.location}</p>
+                </div>
+                <div class="manage-job-item__actions">
+                    <button class="btn btn--secondary btn-edit">Edit</button>
+                    <button class="btn btn--danger btn-delete">Delete</button>
+                </div>
+             </li>`
+        }).join("");
+
+        const btnsDelete = document.getElementsByClassName("btn-delete");
+
+        for (let btn of btnsDelete) {
+            btn.addEventListener("click", () => {
+                const jobId = btn.parentElement.parentElement.getAttribute("data-job-id");
+                if (confirm("Are you sure to delete this job?")) {
+                    allJobs.map((job, index) => {
+                        if (job.id == jobId) {
+                            allJobs.splice(index, 1);
+                            saveAllJobs();
+                            renderManageList();
+                        }
+                    })
+                }
+            })
+        }
     };
 
     /**
@@ -775,7 +793,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Initial job display
         loadFavorites();
-        
+
+        renderManageList();
         // TODO: Add remaining event listeners
         // Profile events
         // Filter events  
