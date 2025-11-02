@@ -1,11 +1,11 @@
-import {isEmpty, isEmail} from "./validation/validation.js";
+import {isEmpty, isEmail, isUrl} from "./validation/validation.js";
 
 /**
  * Job Listings Application - Starter Code
- * 
+ *
  * This is a starter template for building a complete job listings management application.
  * You need to implement the functionality for each function marked with TODO.
- * 
+ *
  * Features to implement:
  * - Load and display job listings from data.json
  * - Search and filter functionality
@@ -22,19 +22,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------------
     // --- GLOBAL VARIABLES ---
     // ------------------------------------
-    
+
     /** @type {Array} All job listings loaded from data.json */
     let allJobs = [];
-    
+
     /** @type {Array} Currently active manual filters */
     let manualFilters = [];
-    
+
     /** @type {Object} User profile data */
-    let userProfile = { name: '', position: '', email: '', skills: [] };
-    
+    let userProfile = {name: '', position: '', email: '', skills: []};
+
     /** @type {Array} Array of favorite job IDs */
     let favoriteJobIds = [];
-    
+
     // LocalStorage keys
     const PROFILE_STORAGE_KEY = 'jobAppUserProfile';
     const FAVORITES_STORAGE_KEY = 'jobAppFavorites';
@@ -55,11 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const profilePositionInput = document.getElementById('profile-position');
     const skillInput = document.getElementById('skill-input');
     const profileSkillsList = document.getElementById('profile-skills-list');
-    
+
     // DOM Elements - Tabs
     const tabsNav = document.querySelector('.tabs-nav');
     const tabContents = document.querySelectorAll('.tab-content');
-    
+
     // DOM Elements - Favorites
     const favoriteJobsContainer = document.getElementById('favorite-jobs-container');
     const favoritesCount = document.getElementById('favorites-count');
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const manageModalCloseBtn = document.getElementById('modal-close-btn-manage');
     const manageModalTitle = document.getElementById('manage-modal-title');
     const manageJobForm = document.getElementById('manage-job-form');
-    
+
     // DOM Elements - Manage Form Fields
     const jobIdInput = document.getElementById('job-id-input');
     const jobCompanyInput = document.getElementById('job-company');
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Promise<void>}
      */
     const loadAllJobs = async () => {
-        const  localJobs = localStorage.getItem(ALL_JOBS_KEY);
+        const localJobs = localStorage.getItem(ALL_JOBS_KEY);
         if (localJobs) {
             allJobs = JSON.parse(localJobs);
         } else {
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLElement} form - The form element
      */
     const clearErrors = (form) => {
-        const inputs = form.querySelectorAll("input[class='has-error']");
+        const inputs = form.querySelectorAll("input[class='has-error'], textarea[class='has-error']");
         const errorMessages = form.querySelectorAll("span.form-error");
 
         inputs.forEach((input) => {
@@ -193,8 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isEmpty(profileEmailInput.value)) {
             showError(profileEmailInput, "this email filed is require");
             isValid = false;
-        }
-        else if (!isEmail(profileEmailInput.value)) {
+        } else if (!isEmail(profileEmailInput.value)) {
             showError(profileEmailInput, "this email not valid");
             isValid = false;
         }
@@ -213,11 +212,55 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {boolean} True if valid, false otherwise
      */
     const validateJobForm = () => {
-        // TODO: Implement job form validation
-        // 1. Validate all required fields
-        // 2. Validate URL format for logo
-        // 3. Show appropriate error messages
-        return true;
+        let isValid = true;
+        clearErrors(manageJobForm);
+
+        if (isEmpty(jobCompanyInput.value)) {
+            showError(jobCompanyInput, "this company filed is require");
+            isValid = false;
+        }
+
+        if (isEmpty(jobPositionInput.value)) {
+            showError(jobPositionInput, "this position filed is require");
+            isValid = false;
+        }
+
+        if (isEmpty(jobContractInput.value)) {
+            showError(jobContractInput, "this contract filed is require");
+            isValid = false;
+        }
+
+        if (isEmpty(jobLocationInput.value)) {
+            showError(jobLocationInput, "this location filed is require");
+            isValid = false;
+        }
+
+        if (isEmpty(jobRoleInput.value)) {
+            showError(jobRoleInput, "this role filed is require");
+            isValid = false;
+        }
+
+        if (isEmpty(jobLevelInput.value)) {
+            showError(jobLevelInput, "this level filed is require");
+            isValid = false;
+        }
+
+        if (isEmpty(jobSkillsInput.value)) {
+            showError(jobSkillsInput, "this skills filed is require");
+            isValid = false;
+        }
+
+        if (isEmpty(jobDescriptionInput.value)) {
+            showError(jobDescriptionInput, "this description filed is require");
+            isValid = false;
+        }
+
+        if (!isUrl(jobLogoInput.value)) {
+            showError(jobLogoInput, "this logo url not valide");
+            isValid = false;
+        }
+
+        return isValid;
     };
 
     // ------------------------------------
@@ -370,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (favoriteJobIds.length === 0) {
             favoriteJobsContainer.innerHTML = '<p class="job-listings__empty">No jobs favorite found.</p>';
         } else {
-            for (let i  = 0; i < favoriteJobIds.length; i++) {
+            for (let i = 0; i < favoriteJobIds.length; i++) {
                 const objectJob = allJobs.find((item) => item.id === favoriteJobIds[i]);
                 if (objectJob) {
                     contentHtml += createJobCardHTML(objectJob);
@@ -385,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveFavorites();
 
         const btnFavorites = document.getElementsByClassName("job-card__favorite-btn");
-        for (let i  = 0; i < btnFavorites.length; i++) {
+        for (let i = 0; i < btnFavorites.length; i++) {
             btnFavorites[i].addEventListener('click', (e) => {
                 e.stopPropagation();
                 const idJob = Number(e.target.getAttribute("data-job-id"));
@@ -406,8 +449,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // find job
         if (indexOfJob !== -1) {
             // Remove job
-            favoriteJobIds.splice(indexOfJob,1);
-       } else {
+            favoriteJobIds.splice(indexOfJob, 1);
+        } else {
             // Add job
             favoriteJobIds.push(jobId);
         }
@@ -427,17 +470,17 @@ document.addEventListener('DOMContentLoaded', () => {
         tabsNav.addEventListener('click', (e) => {
             const clickedTab = e.target.closest('.tab-item');
             if (!clickedTab) return;
-            
+
             // Update active tab
             tabsNav.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('tab-item--active'));
             clickedTab.classList.add('tab-item--active');
-            
+
             // Show/hide tab content
             const tabId = clickedTab.dataset.tab;
             tabContents.forEach(content => {
                 content.classList.toggle('tab-content--active', content.id === `tab-${tabId}`);
             });
-            
+
             // Load tab-specific content
             if (tabId === 'favorites') renderFavoriteJobs();
             if (tabId === 'manage') renderManageList();
@@ -539,6 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join("");
 
         const btnsDelete = document.getElementsByClassName("btn-delete");
+        const btnsEdit = document.getElementsByClassName("btn-edit");
 
         for (let btn of btnsDelete) {
             btn.addEventListener("click", () => {
@@ -549,9 +593,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             allJobs.splice(index, 1);
                             saveAllJobs();
                             renderManageList();
+                            applyAllFilters();
                         }
                     })
                 }
+            })
+        }
+
+        for (let btn of btnsEdit) {
+            btn.addEventListener("click", () => {
+                const jobId = btn.parentElement.parentElement.getAttribute("data-job-id");
+                openManageModal(+jobId);
             })
         }
     };
@@ -569,6 +621,44 @@ document.addEventListener('DOMContentLoaded', () => {
         // 4. Add new job or update existing
         // 5. Save to localStorage
         // 6. Update UI and close modal
+
+        e.preventDefault() // stop send form
+
+        // validation
+        if (validateJobForm()) {
+            // check if he of edit or create
+            const jobId = jobIdInput.value;
+
+            const job = {
+                company: jobCompanyInput.value,
+                position: jobPositionInput.value,
+                logo: jobLogoInput.value,
+                contract: jobContractInput.value,
+                location: jobLocationInput.value ,
+                rolelevel: jobRoleInput.value ,
+                level: jobLevelInput.value,
+                skills: jobSkillsInput.value.split(","), // convert skills to array
+                description: jobDescriptionInput.value,
+            };
+
+            // create
+            if (isEmpty(jobId)) {
+                job.id = Math.max(...allJobs.map((item) => item.id)) + 1;
+                allJobs.push(job);
+            }
+            // edit
+            else {
+                let jobEdit = allJobs.find((item) => item.id == jobId);
+                if (jobEdit) {
+                    Object.assign(jobEdit, job);
+                }
+            }
+
+            saveAllJobs();
+            applyAllFilters();
+            renderManageList();
+            closeManageModal();
+        }
     };
 
     /**
@@ -595,13 +685,26 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {string} HTML string for job card
      */
     const createJobCardHTML = (job) => {
-        const { id, company, logo, new: isNew, featured, position, role, level, postedAt, contract, location, skills } = job;
+        const {
+            id,
+            company,
+            logo,
+            new: isNew,
+            featured,
+            position,
+            role,
+            level,
+            postedAt,
+            contract,
+            location,
+            skills
+        } = job;
         const tags = [role, level, ...(skills || [])];
         const tagsHTML = tags.map(tag => `<span class="job-card__tag" data-tag="${tag}">${tag}</span>`).join('');
         const newBadge = isNew ? '<span class="job-card__badge job-card__badge--new">NEW!</span>' : '';
         const featuredBadge = featured ? '<span class="job-card__badge job-card__badge--featured">FEATURED</span>' : '';
         const featuredClass = featured ? 'job-card--featured' : '';
-        
+
         const isFavorite = favoriteJobIds.includes(id);
         const favoriteClass = isFavorite ? 'job-card__favorite-btn--active' : '';
         const favoriteIcon = isFavorite ? '★' : '☆';
@@ -784,13 +887,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Modal events
         viewModalCloseBtn.addEventListener('click', closeViewModal);
-        viewModal.addEventListener('click', (e) => { if (e.target === viewModal) closeViewModal(); });
+        viewModal.addEventListener('click', (e) => {
+            if (e.target === viewModal) closeViewModal();
+        });
         manageModalCloseBtn.addEventListener('click', closeManageModal);
-        manageModal.addEventListener('click', (e) => { if (e.target === manageModal) closeManageModal(); });
-        
+        manageModal.addEventListener('click', (e) => {
+            if (e.target === manageModal) closeManageModal();
+        });
+
         // Management events
         addNewJobBtn.addEventListener('click', () => openManageModal());
-        
+
         // Initial job display
         loadFavorites();
 
@@ -800,7 +907,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter events  
         // Job list events
 
-        searchInput.addEventListener("input", applyAllFilters)
+        searchInput.addEventListener("input", applyAllFilters);
+        manageJobForm.addEventListener("submit", handleManageFormSubmit);
     };
 
     // Start the application

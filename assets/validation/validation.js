@@ -13,3 +13,8 @@ export function isEmail(value) {
 
     return emailRegex.test(value);
 }
+
+export function isUrl(value) {
+    const urlRegex = /^https:\/\/\w+/i;
+    return urlRegex.test(value);
+}
