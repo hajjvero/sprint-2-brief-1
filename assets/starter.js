@@ -795,18 +795,26 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         for (let i = 0; i < allJobs.length; i++) {
-            if (
-                (allJobs[i].company.toLowerCase().includes(searchJob) ||
-                allJobs[i].position.toLowerCase().includes(searchJob) ||
-                allJobs[i].location.toLowerCase().includes(searchJob) ||
-                allJobs[i].role.toLowerCase().includes(searchJob) ||
-                allJobs[i].contract.toLowerCase().includes(searchJob) ||
-                searchSkills(allJobs[i].skills)) &&
-                searchSkillsProfil(allJobs[i].skills)
-            ) {
-                manualFilters.push(allJobs[i]);
+            const job = allJobs[i];
+
+            if (searchJob) {
+                if (
+                    job.company.toLowerCase().includes(searchJob) ||
+                    job.position.toLowerCase().includes(searchJob) ||
+                    job.location.toLowerCase().includes(searchJob) ||
+                    job.role.toLowerCase().includes(searchJob) ||
+                    job.contract.toLowerCase().includes(searchJob) ||
+                    searchSkills(job.skills)
+                ) {
+                    manualFilters.push(job);
+                }
+            }
+
+            if (searchSkillsProfil(job.skills)) {
+                manualFilters.push(job);
             }
         }
+
 
         renderJobs(manualFilters);
         renderStats(manualFilters.length, allJobs.length);
