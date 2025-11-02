@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userProfile.skills.splice(userProfile.skills.indexOf(skill), 1);
         e.target.parentElement.remove();
         saveProfile();
-        //TODO: update jobs filter
+        applyAllFilters();
     };
 
     // ------------------------------------
@@ -614,14 +614,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Event} e - Form submit event
      */
     const handleManageFormSubmit = (e) => {
-        // TODO: Implement job save logic
-        // 1. Prevent default submission
-        // 2. Validate form
-        // 3. Create job data object
-        // 4. Add new job or update existing
-        // 5. Save to localStorage
-        // 6. Update UI and close modal
-
         e.preventDefault() // stop send form
 
         // validation
@@ -773,25 +765,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FILTERING & SEARCH ---
     // ------------------------------------
 
-    const resetFilteredJobList = () => {
-        manualFilters = [];
-        for (let skill of userProfile.skills) {
-            for (let job of allJobs) {
-                for (let jobSkill of job.skills) {
-                    if (jobSkill.toLowerCase().includes(skill.toLowerCase())) {
-                        manualFilters.push(job);
-                    }
-                }
-            }
-        }
-    }
     /**
      * Applies all active filters and updates display
      * @function applyAllFilters
      */
     const applyAllFilters = () => {
         const searchJob = searchInput.value.toLowerCase();
-        resetFilteredJobList();
+        manualFilters = [];
 
         const searchSkills = (skills) => {
             for (let j = 0; j < skills.length; j++) {
@@ -802,14 +782,27 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         };
 
+        const searchSkillsProfil = (skills) => {
+            for (let skill of userProfile.skills) {
+                for (let jobSkill of skills) {
+                    if (jobSkill.toLowerCase().includes(skill.toLowerCase())) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        };
+
         for (let i = 0; i < allJobs.length; i++) {
             if (
-                allJobs[i].company.toLowerCase().includes(searchJob) ||
+                (allJobs[i].company.toLowerCase().includes(searchJob) ||
                 allJobs[i].position.toLowerCase().includes(searchJob) ||
                 allJobs[i].location.toLowerCase().includes(searchJob) ||
                 allJobs[i].role.toLowerCase().includes(searchJob) ||
                 allJobs[i].contract.toLowerCase().includes(searchJob) ||
-                searchSkills(allJobs[i].skills)
+                searchSkills(allJobs[i].skills)) &&
+                searchSkillsProfil(allJobs[i].skills)
             ) {
                 manualFilters.push(allJobs[i]);
             }
@@ -817,6 +810,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderJobs(manualFilters);
         renderStats(manualFilters.length, allJobs.length);
+
+        renderFavoriteJobs();
     };
 
     // ------------------------------------
